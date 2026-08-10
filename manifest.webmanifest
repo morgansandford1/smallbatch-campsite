@@ -1,0 +1,9 @@
+{
+  "name": "Smallbatch Campsite Calculator",
+  "short_name": "Smallbatch",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f0e8",
+  "theme_color": "#315f46",
+  "description": "Simple nightly price calculator for Smallbatch Campsite"
+}
