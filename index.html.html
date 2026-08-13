@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f4f0e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Smallbatch">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Smallbatch Campsite</title>
+<style>
+:root{--bg:#f4f0e8;--card:#fff;--ink:#20352b;--muted:#6f776f;--green:#315f46;--pale:#dfeadd;--line:#dedbd3;--red:#9a3f3f;--shadow:0 7px 22px rgba(31,53,43,.10)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button,input{font:inherit} button{touch-action:manipulation;cursor:pointer}
+.app{max-width:820px;margin:auto;padding:18px 16px 190px}
+header{text-align:center;margin:4px 0 18px}.brand{font-size:34px;font-weight:900;letter-spacing:-.6px}.sub{color:var(--muted);margin-top:3px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.nights{display:flex;align-items:center;justify-content:space-between;padding:14px 18px}.nights strong{font-size:20px}
+.step{display:flex;align-items:center;gap:16px}.step button{width:76px;height:76px;border:0;border-radius:20px;background:var(--pale);font-size:42px;font-weight:900;color:var(--ink)}.count{min-width:48px;text-align:center;font-size:29px;font-weight:900}
+h2{font-size:20px;margin:21px 2px 10px}
+.pitch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pitch{position:relative;min-height:132px;border:3px solid transparent;border-radius:22px;background:var(--card);box-shadow:var(--shadow);color:var(--ink);padding:12px;text-align:center}
+.pitch.selected{border-color:var(--green);background:#edf4ec}.pitch .icon{font-size:43px}.pitch .name{font-size:18px;font-weight:900;margin-top:7px}.price{color:var(--muted);margin-top:4px}.tick{display:none;position:absolute;right:10px;top:9px;width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;font-weight:900;align-items:center;justify-content:center}.selected .tick{display:flex}
+.extras{display:grid;grid-template-columns:1fr 1fr;gap:12px}.extra{min-height:105px;padding:12px;display:flex;align-items:center;gap:10px}.extra .icon{font-size:34px;width:43px;text-align:center}.extra-info{flex:1}.extra-name{font-size:17px;font-weight:900}.extra .price{font-size:14px}
+.mini{display:flex;align-items:center;gap:10px}.mini button{width:64px;height:64px;border:0;border-radius:17px;background:var(--pale);font-size:36px;font-weight:900}.mini span{min-width:27px;text-align:center;font-size:20px;font-weight:900}
+.summary{padding:12px 16px}.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #eee}.row:last-child{border:0}.empty{color:var(--muted)}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(244,240,232,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:10}.bottom-inner{max-width:820px;margin:auto;display:grid;grid-template-columns:1fr 170px;gap:12px}.totalbox{background:var(--green);color:#fff;border-radius:20px;padding:12px 16px}.label{font-size:13px;opacity:.9}.total{font-size:35px;font-weight:900}.calc{font-size:13px;opacity:.9}.clear{border:2px solid var(--red);background:#fff;color:var(--red);border-radius:20px;font-weight:900;font-size:16px}
+.hint{text-align:center;color:#8d8d84;font-size:12px;margin-top:20px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.admin{width:min(620px,100%);max-height:88vh;overflow:auto;padding:20px}.admin h3{font-size:26px;margin:0 0 4px}.admin p{color:var(--muted)}.admin-row{display:grid;grid-template-columns:1fr 115px;gap:10px;align-items:center;padding:7px 0}.admin input{width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;font-size:18px}.actions{display:flex;gap:10px;margin-top:16px}.actions button{flex:1;border:0;border-radius:14px;padding:14px;font-weight:900}.save{background:var(--green);color:white}.cancel{background:#eee;color:var(--ink)}
+.pin{text-align:center}.pin input{width:180px;text-align:center;letter-spacing:8px;font-size:27px;margin:12px auto}
+@media(max-width:560px){.app{padding:12px 12px 185px}.brand{font-size:29px}.extras{grid-template-columns:1fr}.bottom-inner{grid-template-columns:1fr 135px}.clear{font-size:14px}.pitch{min-height:122px}.pitch .name{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div id="brand" class="brand">🌿 Smallbatch Campsite</div><div class="sub">Simple nightly price calculator <span style="font-size:12px">(v5)</span></div></header>
+<div class="card nights"><strong>Number of nights</strong><div class="step"><button id="nightMinus">−</button><div id="nights" class="count">1</div><button id="nightPlus">+</button></div></div>
+<h2>What are they staying in? <span style="font-weight:500;color:#6f776f;font-size:14px">(add as many as needed)</span></h2><div id="pitches" class="pitch-grid"></div>
+<h2>Add extras</h2><div id="extras" class="extras"></div>
+<h2>Bill breakdown</h2><div id="summary" class="card summary"></div>
+<div class="hint">Admin: press and hold “Smallbatch Campsite” for 3 seconds.</div>
+</div>
+<div class="bottom"><div class="bottom-inner"><div class="totalbox"><div class="label">TOTAL TO PAY</div><div id="total" class="total">£0.00</div><div id="calc" class="calc">£0.00 per night × 1 night</div></div><button id="clear" class="clear">CLEAR<br>NEXT CUSTOMER</button></div></div>
+
+<div id="pinModal" class="modal"><div class="card admin pin"><h3>Admin</h3><p>Enter your 4-digit PIN</p><input id="pinInput" type="password" inputmode="numeric" maxlength="4"><div class="actions"><button class="cancel" id="pinCancel">Cancel</button><button class="save" id="pinGo">Continue</button></div></div></div>
+<div id="adminModal" class="modal"><div class="card admin"><h3>Price settings</h3><p>All prices are per night. Changes are saved on this device.</p><div id="adminRows"></div><div class="admin-row"><b>Admin PIN</b><input id="newPin" inputmode="numeric" maxlength="4"></div><div class="actions"><button class="cancel" id="adminCancel">Cancel</button><button class="save" id="adminSave">Save prices</button></div></div></div>
+
+<script>
+const PITCHES=[["caravan","🚐","Caravan"],["campervan","🚐","Campervan"],["motorhome","🚌","Motorhome"],["mediumtent","⛺","Medium Tent"],["largetent","🏕️","Large Tent"],["smalltent","⛺","Small Tent"]];
+const EXTRAS=[["electric","⚡","Electric"],["dogs","🐕","Dogs"],["children","🧒","Children"],["adult","👤","Extra Adults"],["awning","🏕️","Awning"],["gazebo","⛺","Gazebo / Pup Tent"],["car","🚗","Extra Car"]];
+const DEFAULTS={prices:{caravan:25,campervan:25,motorhome:25,mediumtent:25,largetent:28,smalltent:16,electric:5,dogs:2,children:5,adult:9,awning:5,gazebo:5,car:5},pin:"2468"};
+let stored={};try{stored=JSON.parse(localStorage.getItem("smallbatchSettings")||"{}")}catch(e){}
+let settings={prices:{...DEFAULTS.prices,...(stored.prices||{})},pin:stored.pin||DEFAULTS.pin};
+let state={nights:1,pitchQty:{},qty:{}};PITCHES.forEach(x=>state.pitchQty[x[0]]=0);EXTRAS.forEach(x=>state.qty[x[0]]=0);
+const money=v=>"£"+Number(v).toFixed(2);
+
+function render(){
+ document.getElementById("nights").textContent=state.nights;
+ const pg=document.getElementById("pitches");pg.innerHTML="";
+ PITCHES.forEach(([id,ic,n])=>{
+   let d=document.createElement("div");
+   d.className="pitch"+((state.pitchQty[id]||0)>0?" selected":"");
+   d.innerHTML=`<span class="tick">✓</span><div class="icon">${ic}</div><div class="name">${n}</div><div class="price">${money(settings.prices[id])}/night</div><div class="mini" style="justify-content:center;margin-top:10px"><button data-pid="${id}" data-d="-1">−</button><span>${state.pitchQty[id]||0}</span><button data-pid="${id}" data-d="1">+</button></div>`;
+   pg.appendChild(d)
+ });
+ pg.querySelectorAll("button").forEach(b=>b.onclick=()=>{let id=b.dataset.pid;state.pitchQty[id]=Math.max(0,Math.min(20,(state.pitchQty[id]||0)+Number(b.dataset.d)));render()});
+ const eg=document.getElementById("extras");eg.innerHTML="";
+ EXTRAS.forEach(([id,ic,n])=>{let d=document.createElement("div");d.className="card extra";d.innerHTML=`<div class="icon">${ic}</div><div class="extra-info"><div class="extra-name">${n}</div><div class="price">${money(settings.prices[id])}${["dogs","children","adult"].includes(id)?" each":""}/night</div></div><div class="mini"><button data-id="${id}" data-d="-1">−</button><span>${state.qty[id]}</span><button data-id="${id}" data-d="1">+</button></div>`;eg.appendChild(d)});
+ eg.querySelectorAll("button").forEach(b=>b.onclick=()=>{let id=b.dataset.id;state.qty[id]=Math.max(0,Math.min(30,state.qty[id]+Number(b.dataset.d)));render()});
+ let per=0,lines=[];
+ PITCHES.forEach(([id,ic,n])=>{let q=state.pitchQty[id]||0;if(q){let a=settings.prices[id]*q;per+=a;lines.push([n+(q>1?" × "+q:""),a])}});
+ EXTRAS.forEach(([id,ic,n])=>{let q=state.qty[id];if(q){let a=settings.prices[id]*q;per+=a;lines.push([n+(q>1?" × "+q:""),a])}});
+ let total=per*state.nights;
+ document.getElementById("total").textContent=money(total);document.getElementById("calc").textContent=`${money(per)} per night × ${state.nights} ${state.nights===1?"night":"nights"}`;
+ document.getElementById("summary").innerHTML=lines.length?lines.map(x=>`<div class="row"><span>${x[0]}</span><b>${money(x[1])}/night</b></div>`).join("")+`<div class="row"><b>${state.nights} ${state.nights===1?"night":"nights"}</b><b>${money(total)}</b></div>`:`<div class="empty">Select a pitch and any extras to see the bill.</div>`;
+}
+document.getElementById("nightMinus").onclick=()=>{state.nights=Math.max(1,state.nights-1);render()};
+document.getElementById("nightPlus").onclick=()=>{state.nights=Math.min(99,state.nights+1);render()};
+document.getElementById("clear").onclick=()=>{state={nights:1,pitchQty:{},qty:{}};PITCHES.forEach(x=>state.pitchQty[x[0]]=0);EXTRAS.forEach(x=>state.qty[x[0]]=0);render()};
+let timer;const brand=document.getElementById("brand");
+["mousedown","touchstart"].forEach(e=>brand.addEventListener(e,()=>timer=setTimeout(()=>{document.getElementById("pinModal").classList.add("show");document.getElementById("pinInput").value=""},3000)));
+["mouseup","mouseleave","touchend","touchcancel"].forEach(e=>brand.addEventListener(e,()=>clearTimeout(timer)));
+document.getElementById("pinCancel").onclick=()=>document.getElementById("pinModal").classList.remove("show");
+document.getElementById("pinGo").onclick=()=>{if(document.getElementById("pinInput").value!==settings.pin){alert("Incorrect PIN");return}document.getElementById("pinModal").classList.remove("show");openAdmin()};
+function openAdmin(){let r=document.getElementById("adminRows");r.innerHTML="";[...PITCHES,...EXTRAS].forEach(([id,ic,n])=>{let d=document.createElement("div");d.className="admin-row";d.innerHTML=`<div>${ic} <b>${n}</b></div><input id="p_${id}" type="number" min="0" step=".5" value="${settings.prices[id]}">`;r.appendChild(d)});document.getElementById("newPin").value=settings.pin;document.getElementById("adminModal").classList.add("show")}
+document.getElementById("adminCancel").onclick=()=>document.getElementById("adminModal").classList.remove("show");
+document.getElementById("adminSave").onclick=()=>{[...PITCHES,...EXTRAS].forEach(([id])=>{let v=parseFloat(document.getElementById("p_"+id).value);if(!isNaN(v)&&v>=0)settings.prices[id]=v});let pin=document.getElementById("newPin").value.trim();if(/^\d{4}$/.test(pin))settings.pin=pin;localStorage.setItem("smallbatchSettings",JSON.stringify(settings));document.getElementById("adminModal").classList.remove("show");render()};
+render();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+</script>
+</body></html>
